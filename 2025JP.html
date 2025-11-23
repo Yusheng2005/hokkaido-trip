@@ -9,7 +9,7 @@
     <style>
         /* 基礎 Reset & 變數 - 溫暖淺米黃色主題 (Cream/Beige Theme) */
         :root {
-            --cream-bg: #FAF9F6; /* 柔和淺米黃色背景 */
+            --cream-bg: #F8F6F0; /* 柔和淺米黃色背景 */
             --surface-color: #FFFFFF; /* 卡片表面色 */
             --dark-text: #3D3D3D; /* 深咖啡色/柔和深灰文字 */
             --secondary-text: #554949; /* 次要文字 (比主文淺) */
@@ -59,7 +59,7 @@
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 8px;
-            color: var(--secondary-text); /* 標題使用深咖啡色 */
+            color: var(--secondary-text); 
         }
 
         .date-control {
@@ -70,7 +70,7 @@
             padding: 10px;
             border-radius: var(--radius-base);
             margin-bottom: var(--padding-base);
-            box-shadow: var(--soft-shadow); /* 柔和陰影 */
+            box-shadow: var(--soft-shadow); 
             border: 1px solid var(--soft-border);
         }
 
@@ -85,7 +85,6 @@
             border-radius: 8px;
         }
         
-        /* 日期切換按鈕 hover 效果 */
         .date-control button:hover:not(:disabled) {
             background-color: var(--cream-bg); 
             color: var(--primary-color);
@@ -132,7 +131,7 @@
         .weather-info .icon {
             font-size: 1.5rem;
             margin-bottom: 4px;
-            color: #FFD700; /* 陽光黃保持鮮豔 */
+            color: #FFD700; 
         }
 
         /* 行程清單 (Timeline 區) */
@@ -154,7 +153,7 @@
             left: 10px;
             width: 2px;
             height: 100%;
-            background-color: var(--timeline-line-color); /* 柔和的灰棕線 */
+            background-color: var(--timeline-line-color); 
         }
 
         .timeline-item {
@@ -174,7 +173,7 @@
             padding: 15px;
             border-radius: var(--radius-base);
             box-shadow: var(--soft-shadow);
-            border: 1px solid var(--soft-border); /* 增加輕微邊框 */
+            border: 1px solid var(--soft-border); 
             display: grid;
             grid-template-areas:
                 "icon type time"
@@ -186,11 +185,11 @@
         }
 
         .item-content:hover {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* 稍微強一點的 hover 陰影 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
         }
         
         .item-content:active {
-            transform: scale(0.99); /* 點擊時輕微縮小 */
+            transform: scale(0.99); 
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
@@ -203,7 +202,7 @@
             height: 12px;
             border-radius: 50%;
             background-color: var(--primary-color);
-            border: 3px solid var(--cream-bg); /* 邊框使用背景色 */
+            border: 3px solid var(--cream-bg); 
             z-index: 10;
         }
 
@@ -211,7 +210,6 @@
             grid-area: icon;
             font-size: 1.4rem;
             text-align: center;
-            /* 圖標顏色保持鮮豔，不隨主題色變更 */
         }
         
         /* 調整特定類型圖標顏色 (保留自定義鮮豔色) */
@@ -231,7 +229,7 @@
         }
 
         .item-time, .item-name {
-            color: var(--dark-text); /* 所有文字使用深色 */
+            color: var(--dark-text); 
         }
 
         /* Modal 彈出視窗樣式 */
@@ -241,21 +239,20 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: none; 
-            background-color: rgba(0, 0, 0, 0.4); /* 半透明深色疊層 */
+            display: none; /* 預設隱藏，修復灰色遮罩問題 */
+            background-color: rgba(0, 0, 0, 0.4); 
             z-index: 1000;
-            display: flex; 
             flex-direction: column;
             justify-content: flex-end; 
             align-items: center;
         }
         
         #modal-container.is-visible {
-            display: flex;
+            display: flex; /* 點擊時才顯示 */
         }
         
         .modal-content {
-            background-color: var(--surface-color); /* Modal 主體背景用卡片色 */
+            background-color: var(--surface-color); 
             width: 100%;
             max-width: 600px; 
             border-top-left-radius: 20px;
@@ -278,7 +275,7 @@
             align-items: center;
             margin-bottom: var(--padding-base);
             padding-bottom: 10px;
-            border-bottom: 1px solid var(--soft-border); /* 柔和分隔線 */
+            border-bottom: 1px solid var(--soft-border); 
         }
         
         .modal-header h2 {
@@ -319,8 +316,8 @@
             width: 100%;
             padding: 12px;
             margin-top: var(--padding-base);
-            background-color: var(--primary-color); /* 主色調紫色 */
-            color: white; /* 導航按鈕文字使用白色保持高對比度 */
+            background-color: var(--primary-color); 
+            color: white; 
             border: none;
             border-radius: var(--radius-base);
             font-size: 1.1rem;
@@ -334,7 +331,7 @@
             background-color: var(--accent-color);
         }
         
-        /* RWD 調整 (針對手機設計，無需太多 Breakpoint) */
+        /* RWD 調整 */
         @media (max-width: 480px) {
             .trip-title {
                 font-size: 1.6rem;
@@ -558,16 +555,24 @@
          * 為每個行程項目添加點擊監聽器
          */
         function attachActivityListeners() {
+            // 清除舊的監聽器 (非必要但更安全)
+            document.querySelectorAll('.item-content').forEach(oldItem => {
+                oldItem.removeEventListener('click', handleActivityClick);
+            });
+
+            // 為新渲染的項目添加監聽器
             document.querySelectorAll('.item-content').forEach(item => {
-                item.addEventListener('click', (event) => {
-                    // 從 data 屬性取出活動 JSON 字串並解析回物件
-                    const activityJson = event.currentTarget.getAttribute('data-activity');
-                    // decodeURIComponent 和 JSON.parse 是為了將儲存的字串變回程式能用的物件
-                    const activity = JSON.parse(decodeURIComponent(activityJson)); 
-                    showModal(activity);
-                });
+                item.addEventListener('click', handleActivityClick);
             });
         }
+        
+        // 點擊處理函數
+        function handleActivityClick(event) {
+            const activityJson = event.currentTarget.getAttribute('data-activity');
+            const activity = JSON.parse(decodeURIComponent(activityJson)); 
+            showModal(activity);
+        }
+
 
         /**
          * 處理日期切換
@@ -576,7 +581,7 @@
             const newIndex = currentTripIndex + offset;
             if (newIndex >= 0 && newIndex < tripData.length) {
                 currentTripIndex = newIndex;
-                renderTripDetails(currentTripIndex);
+                renderTripDetails(currentTripIndex); // 重新渲染頁面
             }
         }
         
@@ -584,11 +589,10 @@
          * 顯示 Modal 彈出視窗
          */
         function showModal(activity) {
-            // 1. 建立 Google Maps 導航 URL
-            // encodeURIComponent 確保行程名稱中的特殊符號能被網址接受
-            const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(activity.name)}`;
+            // *** 修復 Google Maps URL 錯誤：使用 Google Maps Search API 格式 ***
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.name)}`;
 
-            // 2. 建立 Modal 內容 HTML
+            // 建立 Modal 內容 HTML
             const modalContent = `
                 <div class="modal-content">
                     <div class="modal-header">
@@ -606,12 +610,11 @@
                 </div>
             `;
             
-            // 3. 渲染內容並顯示 Modal
+            // 渲染內容並顯示 Modal
             modalContainerEl.innerHTML = modalContent;
             modalContainerEl.classList.add('is-visible');
             
-            // 4. 觸發滑入動畫
-            // 這是實現滑入效果的技巧：先設定元素在螢幕外，再在極短時間後將它移回 (加上 slide-in class)
+            // 觸發滑入動畫
             setTimeout(() => {
                 modalContainerEl.querySelector('.modal-content').classList.add('slide-in');
             }, 10);
@@ -635,7 +638,7 @@
             }, 300);
         }
 
-        // 將 closeModal 函數暴露給全域環境，讓 HTML 內嵌的 onclick 可以調用
+        // 將 closeModal 函數暴露給全域環境
         window.closeModal = closeModal;
 
 
