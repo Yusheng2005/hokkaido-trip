@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>世界國家抽籤機 V7.0 (正選 25)</title>
+    <title>世界航空公司抽籤機 V8.0</title>
     <style>
         :root {
             --primary-color: #3f51b5; /* 深藍色 */
@@ -112,7 +112,7 @@
             color: var(--tile-text-color-initial);
         }
 
-        /* 備取國家樣式 (第 26 格開始) */
+        /* 備取航空公司樣式 (第 26 格開始) */
         .country-tile.wait-tile {
             background-color: var(--wait-list-color);
             border-color: #fbc02d; 
@@ -163,7 +163,7 @@
         /* 響應式設計 (RWD) */
         @media (max-width: 768px) {
             #resultsGrid {
-                grid-template-columns: repeat(3, 1fr); /* 手機上變為 3 欄 */
+                grid-template-columns: repeat(3, 1fr); 
             }
             .country-tile {
                 height: 70px;
@@ -174,19 +174,19 @@
 <body>
 
 <div class="container">
-    <h1>世界國家抽籤機</h1>
+    <h1>世界航空公司抽籤機</h1>
 
     <!-- 國家清單 Icon -->
-    <div id="listIcon" title="編輯國家清單">&#9998;</div> 
+    <div id="listIcon" title="編輯航空公司清單">&#9998;</div> 
 
     <button id="drawButton" class="initial-state" onclick="startDraw()">點擊按鍵開始抽籤</button>
 
     <div id="results">
         <div id="resultsGrid">
-            <!-- 初始提示方磚 (共 35 個) -->
+            <!-- 初始提示方磚 (共 30 個: 25正選 + 5備取) -->
             <script>
-                // 總共 35 格 (25正選 + 10備取)
-                for(let i=1; i<=35; i++) { 
+                // 總共 30 格 (25正選 + 5備取)
+                for(let i=1; i<=30; i++) { 
                     let tileIndex = (i <= 25) ? `正選 ${i}` : `備取 ${i - 25}`;
                     let tileClass = (i > 25) ? 'wait-tile' : ''; // 備取從第 26 格開始
                     document.write(`
@@ -201,15 +201,15 @@
     </div>
 </div>
 
-<!-- 國家清單 Modal 彈出視窗 -->
+<!-- 航空公司清單 Modal 彈出視窗 -->
 <div id="countryListModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <h2>編輯國家/地區清單 (共 <span id="countryCount">0</span> 個)</h2>
+        <h2>編輯航空公司清單 (共 <span id="countryCount">0</span> 間)</h2>
         
         <div id="countryEditor">
-            <p><strong>新增國家 (以逗號或換行分隔):</strong></p>
-            <textarea id="countryInput" rows="3" placeholder="例如: 台灣, 日本, 韓國"></textarea>
+            <p><strong>新增航空公司 (以逗號或換行分隔):</strong></p>
+            <textarea id="countryInput" rows="3" placeholder="例如: 國泰航空, 達美航空"></textarea>
             <div id="editorButtons">
                 <button id="addCountryButton" onclick="addCountries()">新增/更新</button>
                 <button id="clearListButton" onclick="clearList()">載入預設列表</button>
@@ -218,7 +218,7 @@
             <p style="margin-top: 15px;"><strong>當前列表:</strong></p>
             <div id="currentListContainer">
                 <div id="allCountriesList">
-                    <!-- 國家清單將由 JavaScript 載入 -->
+                    <!-- 航空公司清單將由 JavaScript 載入 -->
                 </div>
             </div>
         </div>
@@ -226,39 +226,40 @@
 </div>
 
 <script>
-    // 國家/地區清單 (已加入澳門)
-    const rawDefaultCountries = [
-        "台灣", "香港", "澳門", "澳大利亞", "孟加拉", "不丹", "汶萊", "柬埔寨", "庫克群島", "朝鮮", "東帝汶", 
-        "斐濟", "印度", "印尼", "日本", "吉里巴斯", "寮國", "馬來西亞", "馬爾地夫", "馬紹爾", "密克羅尼西亞", 
-        "緬甸", "諾魯", "尼泊爾", "紐西蘭", "紐埃", "帛琉", "巴布亞紐幾內亞", "菲律賓", "韓國",
-        "薩摩亞", "新加坡", "索羅門", "斯里蘭卡", "泰國", "東加", "吐瓦魯", "萬那杜", "越南",
-        "阿富汗", "亞美尼亞", "亞塞拜然", "巴林", "白俄羅斯", "喬治亞", "伊朗", "伊拉克", "以色列", "約旦", 
-        "哈薩克", "科威特", "吉爾吉斯", "黎巴嫩", "摩爾多瓦", "蒙古", "阿曼", "巴基斯坦", "卡達", "俄羅斯", 
-        "沙烏地阿拉伯", "敘利亞", "塔吉克", "土耳其", "土庫曼", "阿聯", "烏克蘭", "烏茲別克", "葉門",
-        "阿爾及利亞", "安哥拉", "貝南", "波札那", "布吉納法索", "蒲隆地", "喀麥隆", "維德角", "中非", "查德", 
-        "葛摩", "剛果", "象牙海岸", "吉布地", "民主剛果", "埃及", "赤道幾內亞", "厄利垂亞", "史瓦帝尼", "衣索比亞", 
-        "加彭", "甘比亞", "迦納", "幾內亞", "幾內亞比索", "肯亞", "賴索托", "賴比瑞亞", "利比亞", "馬達加斯加", 
-        "馬拉威", "馬利", "茅利塔尼亞", "模里西斯", "摩洛哥", "莫三比克", "納米比亞", "尼日", "奈及利亞", "盧安達", 
-        "聖多美", "塞內加爾", "塞席爾", "獅子山", "索馬利亞", "南非", "南蘇丹", "蘇丹", "坦尚尼亞", "多哥", 
-        "突尼西亞", "烏干達", "尚比亞", "辛巴威",
-        "阿爾巴尼亞", "安道爾", "奧地利", "比利時", "波士尼亞", "保加利亞", "克羅埃西亞", "賽普勒斯", "捷克", "丹麥", 
-        "愛沙尼亞", "歐盟", "芬蘭", "法國", "德國", "希臘", "教廷", "匈牙利", "冰島", "愛爾蘭", 
-        "義大利", "科索沃", "拉脫維亞", "列支敦斯登", "立陶宛", "盧森堡", "馬爾他", "摩納哥", "蒙特內哥羅", "北馬其頓", 
-        "挪威", "馬爾他騎士團", "波蘭", "葡萄牙", "羅馬尼亞", "聖馬利諾", "塞爾維亞", "斯洛伐克", "斯洛維尼亞", "西班牙", 
-        "瑞典", "瑞士", "荷蘭", "英國",
-        "加拿大", "美國", 
-        "安地卡", "阿根廷", "巴哈馬", "巴貝多", "貝里斯", "玻利維亞", "巴西", "智利", "哥倫比亞", "哥斯大黎加", 
-        "古巴", "多米尼克", "多明尼加", "厄瓜多", "薩爾瓦多", "格瑞那達", "瓜地馬拉", "蓋亞那", "海地", "宏都拉斯", 
-        "牙買加", "墨西哥", "尼加拉瓜", "巴拿馬", "巴拉圭", "秘魯", "聖克里斯多福", "聖露西亞", "聖文森國", "蘇利南", 
-        "千里達", "烏拉圭", "委內瑞拉"
+    // 航空公司清單 (總共約 80 間)
+    const defaultCountries = [
+        "亞特拉斯航空", "捷藍航空", "泛美航空", "精神航空", "全美航空", "夏威夷航空", "指南針航空", 
+        "美國大陸航空", "美國航空", "達美航空", "聯合航空", "西南航空", "阿拉斯加航空",
+        "國泰航空", "中國國際航空", "中國東方航空", "中國南方航空", "海南航空", "廈門航空", 
+        "上海航空", "四川航空", "深圳航空", "山東航空",
+        "瑞安航空(低成本)", "愛爾蘭航空",
+        "印度航空", "印度快運航空", "AIX連接航空", "阿卡薩航空", "香料航空", "塔新航空", 
+        "靛藍航空", "捷行航空",
+        "英國航空", "Jet2", "easyJet",
+        "日本航空", "全日空空輸", "AIRDO", "AirJapan", "捷星日本航空", "樂桃航空", 
+        "ZIPAIR Tokyo", "星悅航空", "天馬航空",
+        "土耳其", "Pegasus",
+        "漢沙航空集團", "Eurowings(漢沙子公司，低成本)", "TUI fly",
+        "俄羅斯航空",
+        "LATAM 巴西航空", "高爾航空", "藍色巴西航空",
+        "阿聯酋航空", "阿提哈德航空", "杜拜航空", "阿拉伯航空",
+        "加拿大航空", "西捷航空", "Flair Airlines",
+        "大韓航空", "韓亞航空", "濟州航空", "釜山航空",
+        "峇迪航空", "嘉魯達印尼航空", "印尼獅子航空",
+        "伊比利亞航空", "歐羅巴航空", "伏林航空",
+        "澳洲航空", "捷星航空", "維珍澳洲航空", "Airnorth",
+        "泰國國際航空", "曼谷航空", "泰國亞洲航空", "泰國越捷航空", 
+        "泰國獅子航空", "泰國飛鳥航空",
+        "法國航空", "法國蜜蜂航空", "法國泛航航空", "法國霍普航空",
+        "墨西哥國際航空", "Volaris", "Viva Aerobus", "Magnicharters",
+        "馬來西亞", "亞洲航空", "全亞洲航空"
     ];
 
-    const defaultCountries = [...new Set(rawDefaultCountries)]; 
     let allCountries = []; 
     
-    const DRAW_COUNT = 25; // 正選數量改為 25
-    const WAIT_COUNT = 10; // 備取數量維持 10
-    const TOTAL_COUNT = DRAW_COUNT + WAIT_COUNT; // 總抽籤數改為 35
+    const DRAW_COUNT = 25; // 正選數量維持 25
+    const WAIT_COUNT = 5;  // 備取數量改為 5
+    const TOTAL_COUNT = DRAW_COUNT + WAIT_COUNT; // 總抽籤數改為 30
     const DRAW_ANIMATION_DURATION = 3000; 
     
     // DOM 元素參考
@@ -269,12 +270,12 @@
     const resultsGrid = document.getElementById('resultsGrid');
     const drawButton = document.getElementById('drawButton');
 
-    // ---------------------- 抽籤核心邏輯 (已更新常數) ----------------------
+    // ---------------------- 抽籤核心邏輯 ----------------------
 
     function shuffleArray(array) { let arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     
     function startDraw() { 
-        if (allCountries.length < TOTAL_COUNT) { alert(`國家數量不足！至少需要 ${TOTAL_COUNT} 個國家才能抽籤。\n當前數量: ${allCountries.length} 個。`); return; } 
+        if (allCountries.length < TOTAL_COUNT) { alert(`航空公司數量不足！至少需要 ${TOTAL_COUNT} 間航空公司才能抽籤。\n當前數量: ${allCountries.length} 間。`); return; } 
         drawButton.disabled = true; drawButton.textContent = '抽籤中...'; drawButton.classList.remove('initial-state'); 
         animateDraw(true); 
         setTimeout(() => { 
@@ -323,8 +324,8 @@
 
     // ---------------------- 列表管理與儲存 ----------------------
 
-    function saveCountries() { try { localStorage.setItem('worldDrawCountries', JSON.stringify(allCountries)); } catch (e) {} }
-    function loadSavedCountries() { try { const saved = localStorage.getItem('worldDrawCountries'); if (saved) { allCountries = JSON.parse(saved); } else { allCountries = [...defaultCountries]; } } catch (e) { allCountries = [...defaultCountries]; } }
+    function saveCountries() { try { localStorage.setItem('worldDrawAirlines', JSON.stringify(allCountries)); } catch (e) {} }
+    function loadSavedCountries() { try { const saved = localStorage.getItem('worldDrawAirlines'); if (saved) { allCountries = JSON.parse(saved); } else { allCountries = [...defaultCountries]; } } catch (e) { allCountries = [...defaultCountries]; } }
     function loadCountryList() { 
         allCountriesListDiv.innerHTML = ''; countryCountSpan.textContent = allCountries.length; 
         allCountries.forEach((country, index) => { 
@@ -334,7 +335,7 @@
         }); 
     }
     window.removeCountry = function(index) { if (confirm(`確定要從清單中移除「${allCountries[index]}」嗎?`)) { allCountries.splice(index, 1); saveCountries(); loadCountryList(); } }
-    window.clearList = function() { if (confirm("確定要將國家列表重置為預設的完整列表嗎？")) { allCountries = [...defaultCountries]; saveCountries(); loadCountryList(); } }
+    window.clearList = function() { if (confirm("確定要將航空公司列表重置為預設的完整列表嗎？")) { allCountries = [...defaultCountries]; saveCountries(); loadCountryList(); } }
     window.addCountries = function() { 
         const input = document.getElementById('countryInput'); const rawText = input.value.trim(); if (!rawText) return; 
         const newCountries = rawText.split(/[,，\n\s]+/).map(c => c.trim()).filter(c => c.length > 0); 
