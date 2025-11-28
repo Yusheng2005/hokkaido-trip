@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>世界國家抽籤機 V6.0</title>
+    <title>世界國家抽籤機 V7.0 (正選 25)</title>
     <style>
         :root {
             --primary-color: #3f51b5; /* 深藍色 */
@@ -112,11 +112,10 @@
             color: var(--tile-text-color-initial);
         }
 
-        /* 備取國家樣式 (第 21 格開始) */
+        /* 備取國家樣式 (第 26 格開始) */
         .country-tile.wait-tile {
             background-color: var(--wait-list-color);
             border-color: #fbc02d; 
-            /* 由於沒有虛線，這裡不需要特殊 margin-top */
         }
         
         /* 動畫效果 (老虎機) */
@@ -184,12 +183,12 @@
 
     <div id="results">
         <div id="resultsGrid">
-            <!-- 初始提示方磚 (共 30 個) -->
+            <!-- 初始提示方磚 (共 35 個) -->
             <script>
-                // 總共 30 格 (20正選 + 10備取)
-                for(let i=1; i<=30; i++) { 
-                    let tileIndex = (i <= 20) ? `正選 ${i}` : `備取 ${i - 20}`;
-                    let tileClass = (i > 20) ? 'wait-tile' : ''; 
+                // 總共 35 格 (25正選 + 10備取)
+                for(let i=1; i<=35; i++) { 
+                    let tileIndex = (i <= 25) ? `正選 ${i}` : `備取 ${i - 25}`;
+                    let tileClass = (i > 25) ? 'wait-tile' : ''; // 備取從第 26 格開始
                     document.write(`
                         <div class="country-tile ${tileClass}">
                             <div class="tile-index">${tileIndex}</div>
@@ -227,9 +226,9 @@
 </div>
 
 <script>
-    // 國家/地區清單 (與 V5 相同)
-    const defaultCountries = [
-        "台灣", "香港", "澳大利亞", "孟加拉", "不丹", "汶萊", "柬埔寨", "庫克群島", "朝鮮", "東帝汶", 
+    // 國家/地區清單 (已加入澳門)
+    const rawDefaultCountries = [
+        "台灣", "香港", "澳門", "澳大利亞", "孟加拉", "不丹", "汶萊", "柬埔寨", "庫克群島", "朝鮮", "東帝汶", 
         "斐濟", "印度", "印尼", "日本", "吉里巴斯", "寮國", "馬來西亞", "馬爾地夫", "馬紹爾", "密克羅尼西亞", 
         "緬甸", "諾魯", "尼泊爾", "紐西蘭", "紐埃", "帛琉", "巴布亞紐幾內亞", "菲律賓", "韓國",
         "薩摩亞", "新加坡", "索羅門", "斯里蘭卡", "泰國", "東加", "吐瓦魯", "萬那杜", "越南",
@@ -254,10 +253,12 @@
         "千里達", "烏拉圭", "委內瑞拉"
     ];
 
+    const defaultCountries = [...new Set(rawDefaultCountries)]; 
     let allCountries = []; 
-    const DRAW_COUNT = 20; 
-    const WAIT_COUNT = 10; // 備取數量改為 10
-    const TOTAL_COUNT = DRAW_COUNT + WAIT_COUNT; // 總抽籤數改為 30
+    
+    const DRAW_COUNT = 25; // 正選數量改為 25
+    const WAIT_COUNT = 10; // 備取數量維持 10
+    const TOTAL_COUNT = DRAW_COUNT + WAIT_COUNT; // 總抽籤數改為 35
     const DRAW_ANIMATION_DURATION = 3000; 
     
     // DOM 元素參考
@@ -268,7 +269,7 @@
     const resultsGrid = document.getElementById('resultsGrid');
     const drawButton = document.getElementById('drawButton');
 
-    // ---------------------- 抽籤核心邏輯 ----------------------
+    // ---------------------- 抽籤核心邏輯 (已更新常數) ----------------------
 
     function shuffleArray(array) { let arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     
