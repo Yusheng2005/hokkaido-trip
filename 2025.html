@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025 北海道之旅 - 行程</title>
+    <title>北海道之旅 - 行程</title>
     <style>
         /* 日式極簡風格顏色定義 */
         :root {
-            --color-paper: #fcfcfc;       /* 紙白 (主背景) */
+            --color-paper: #fcfcfc;       /* 紙白 (主背景/卡片) */
             --color-wood-light: #f7f3e8;  /* 淺木紋 (App內容區) */
             --color-wood-med: #e0d8c3;    /* 中木紋 (Header/Tab背景) */
             --color-ink: #333333;         /* 墨黑 (文字) */
             --color-accent: #bfa080;      /* 柔和咖啡 (主色/強調) */
             --color-detail: #6d4c41;      /* 深咖啡 (標題/細節) */
+            --color-timeline-dot: #bfa080; /* 時間軸點顏色 */
         }
 
-        /* 基本手機模擬樣式 */
+        /* --- 全局樣式 --- */
         body {
             font-family: 'Hiragino Sans', 'Noto Sans TC', 'Arial', sans-serif;
             background-color: var(--color-wood-light);
@@ -35,11 +36,11 @@
             flex-direction: column;
         }
 
-        /* 標題與天氣區塊 */
+        /* --- Header --- */
         .header {
             background-color: var(--color-wood-med);
             color: var(--color-detail);
-            padding: 25px 15px 15px;
+            padding: 25px 0 0; 
             text-align: center;
             position: sticky;
             top: 0;
@@ -57,38 +58,74 @@
             font-size: 0.9em;
             color: var(--color-detail);
             padding: 8px 15px;
-            margin-top: 5px;
+            margin: 5px 15px 15px;
             background-color: rgba(255, 255, 255, 0.7);
             border-radius: 5px;
             font-weight: 400;
         }
 
-        /* 日期導航 Tab */
+        /* --- 圖片跑馬燈 (Image Carousel) 樣式 --- */
+        .image-carousel {
+            overflow-x: scroll;
+            white-space: nowrap;
+            padding: 10px 0;
+            margin-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .image-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-item {
+            display: inline-block;
+            width: 130px; 
+            height: 90px;
+            margin: 0 5px;
+            background-color: var(--color-wood-med);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            line-height: 90px;
+            color: var(--color-paper); /* 改為白色文字 */
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: transform 0.3s;
+        }
+        .carousel-item:first-child {
+            margin-left: 15px;
+        }
+        .carousel-item:last-child {
+            margin-right: 15px;
+        }
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0.8; /* 降低透明度讓文字更清晰 */
+            mix-blend-mode: multiply; /* 混合模式讓顏色更深沉 */
+        }
+        .carousel-item span {
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* 黑色陰影讓文字更清晰 */
+        }
+
+        /* --- 日期導航 Tab --- */
         .date-tabs {
             background-color: var(--color-wood-med);
             display: flex;
             justify-content: space-around;
             padding: 10px 5px;
             position: sticky;
-            top: 90px;
+            top: 150px; /* 調整固定位置 */
             z-index: 9;
             box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .date-tab {
-            background-color: var(--color-paper);
-            color: var(--color-detail);
-            border: 1px solid var(--color-wood-med);
-            padding: 8px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s, box-shadow 0.3s;
-            flex-grow: 1;
-            margin: 0 4px;
-            text-align: center;
-            font-size: 1.1em;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .date-tab.active {
@@ -99,67 +136,95 @@
             transform: translateY(-1px);
         }
 
-        /* 行程內容 */
+        /* --- 行程內容 (重新啟用虛線時間軸) --- */
         .schedule-content {
             padding: 15px;
             flex-grow: 1;
             background-color: var(--color-wood-light);
+            min-height: 100px;
         }
-
+        
         .day-schedule {
             display: none;
             margin-bottom: 30px;
+            position: relative;
+            padding-left: 0;
         }
-
         .day-schedule.active {
             display: block;
         }
 
+        /* 行程分組容器 */
+        .section-container {
+            position: relative;
+            padding-left: 20px; /* 為時間軸留出空間 */
+            margin-bottom: 25px;
+        }
+
+        /* 虛線 (時間軸線) */
+        .section-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            border-left: 2px dashed var(--color-accent); /* 使用強調色虛線 */
+        }
+
         .day-schedule h2 {
             color: var(--color-detail);
-            border-bottom: 1px solid var(--color-accent);
+            border-bottom: 1px solid var(--color-wood-med);
             padding-bottom: 8px;
             margin-top: 0;
             font-size: 1.4em;
             font-weight: 500;
+            margin-bottom: 15px;
         }
 
         .section-title {
-            color: var(--color-accent);
-            margin-top: 20px;
+            color: var(--color-detail);
             font-size: 1.1em;
-            margin-bottom: 12px;
-            font-weight: bold;
+            font-weight: 600;
+            margin-bottom: 10px;
+            margin-top: 0;
+            padding-left: 0;
+            border: none;
         }
-        
-        /* 景點卡片樣式 */
+
         .attraction-card {
+            position: relative;
             background-color: var(--color-paper);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 15px;
-            margin-bottom: 12px;
+            margin-bottom: 20px; /* 增加卡片間距 */
             cursor: pointer;
-            transition: box-shadow 0.2s, transform 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             font-weight: 500;
             color: var(--color-ink);
-            line-height: 1.5;
+            line-height: 1.4;
+            /* 恢復垂直堆疊，卡片之間沒有間隔 */
+            width: calc(100% - 20px); 
+            min-width: 100%;
         }
 
-        .attraction-card:active {
-             transform: translateY(1px);
-             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* 時間軸圓點 */
+        .attraction-card::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: -32px; /* 移到虛線位置 */
+            width: 10px;
+            height: 10px;
+            background-color: var(--color-timeline-dot);
+            border-radius: 50%;
+            border: 3px solid var(--color-wood-light);
+            box-shadow: 0 0 0 2px var(--color-timeline-dot);
+            z-index: 1;
         }
 
-        .attraction-card span {
-            display: block;
-            font-size: 0.9em;
-            color: var(--color-detail);
-            margin-top: 3px;
-        }
-
-        /* 底部滑出面板 (Bottom Sheet/Drawer) 樣式 */
+        /* 底部滑出面板 (Modal/BottomSheet 樣式與前一版相同) */
         .modal {
             display: none;
             position: fixed;
@@ -171,70 +236,87 @@
             overflow: hidden;
             background-color: rgba(0,0,0,0.3);
             backdrop-filter: blur(2px);
-            transition: background-color 0.3s;
+            transition: background-color 0.4s;
         }
-
+        
         .modal-content {
             background-color: var(--color-paper);
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            padding: 25px 25px 40px; /* 增加底部 padding 以避開手機手勢區 */
+            padding: 25px 25px 40px;
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
             color: var(--color-detail);
-            transform: translateY(100%); /* 初始位置在視窗外 */
-            transition: transform 0.4s ease-out; /* 滑動動畫 */
-            max-height: 80vh; /* 最大高度限制 */
-            overflow-y: auto; /* 超出時可滾動 */
+            transform: translateY(100%);
+            transition: transform 0.4s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
 
         .modal.is-visible .modal-content {
-            transform: translateY(0); /* 顯示時滑入 */
+            transform: translateY(0);
         }
         .modal.is-visible {
             display: block;
         }
-
-        .modal-content h3 {
-            color: var(--color-detail);
-            border-bottom: 2px solid var(--color-accent);
-            padding-bottom: 8px;
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-weight: 500;
-        }
-
-        .modal-content p {
-            line-height: 1.8;
-            color: var(--color-ink);
-            font-weight: 400;
-        }
-
+        
         .close-btn {
             position: absolute;
-            top: 15px;
-            right: 25px;
+            right: 15px;
+            top: 15px; 
             color: var(--color-detail);
             font-size: 32px;
             font-weight: normal;
             cursor: pointer;
-            z-index: 10;
-        }
-
-        .close-btn:hover {
-            color: var(--color-accent);
+            z-index: 1001;
+            line-height: 1;
+            background-color: var(--color-paper);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <!-- 標題與天氣 -->
+    <!-- 標題 -->
     <div class="header">
-        <h1>2025 北海道之旅</h1>
+        <h1>北海道之旅</h1>
+        
+        <!-- 跑馬燈 (Carousel) 區塊 -->
+        <div class="image-carousel">
+            <!-- 實際圖片替換 -->
+            <div class="carousel-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Odori_Park_Sapporo_2016-10-14.jpg/800px-Odori_Park_Sapporo_2016-10-14.jpg" alt="札幌大通公園">
+                <span>札幌 SAPPORO</span>
+            </div>
+            <div class="carousel-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Otaru_Canal.JPG/800px-Otaru_Canal.JPG" alt="小樽運河">
+                <span>小樽 OTARU</span>
+            </div>
+            <div class="carousel-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jigokudani_Noboribetsu_Onsen.jpg/800px-Jigokudani_Noboribetsu_Onsen.jpg" alt="登別地獄谷">
+                <span>登別 NOBORIBETSU</span>
+            </div>
+            <div class="carousel-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Mt._Hakodate_night_view_2017.jpg/800px-Mt._Hakodate_night_view_2017.jpg" alt="函館山夜景">
+                <span>函館 HAKODATE</span>
+            </div>
+            <div class="carousel-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Goryokaku_Tower_in_winter.jpg/800px-Goryokaku_Tower_in_winter.jpg" alt="五稜郭塔">
+                <span>五稜郭 GORYOKAKU</span>
+            </div>
+        </div>
+
+        <!-- 天氣資訊 -->
         <div class="weather-placeholder" id="weatherInfo">
             **北海道即時天氣 (開發提示: 點擊下方按鈕查詢天氣獲取方法)**
             <button onclick="showWeatherInstruction()" style="margin-left: 10px; padding: 5px 10px; background-color: var(--color-accent); color: white; border: none; border-radius: 4px; cursor: pointer;">教學</button>
@@ -243,253 +325,263 @@
 
     <!-- 日期導航 Tab -->
     <div class="date-tabs" id="dateTabs">
-        <button class="date-tab" data-day="day1">09</button>
-        <button class="date-tab" data-day="day2">10</button>
-        <button class="date-tab" data-day="day3">11</button>
-        <button class="date-tab" data-day="day4">12</button>
-        <button class="date-tab" data-day="day5">13</button>
-        <button class="date-tab" data-day="day6">14</button>
-        <button class="date-tab" data-day="day7">15</button>
+        <button class="date-tab" data-day="day1">09<br>SAT</button>
+        <button class="date-tab" data-day="day2">10<br>SUN</button>
+        <button class="date-tab" data-day="day3">11<br>MON</button>
+        <button class="date-tab" data-day="day4">12<br>TUE</button>
+        <button class="date-tab" data-day="day5">13<br>WED</button>
+        <button class="date-tab" data-day="day6">14<br>THU</button>
+        <button class="date-tab" data-day="day7">15<br>FRI</button>
     </div>
 
     <!-- 行程內容區塊 -->
     <div class="schedule-content">
-        <!-- 景點內容與前一版相同，略過重複程式碼 -->
+
         <!-- Day 1: 08/09 (六) -->
         <div id="day1" class="day-schedule">
             <h2>DAY 1: 08/09 (六)</h2>
-            <div class="section-title">抵達與入住</div>
+            <div class="section-container">
+                <div class="section-title">抵達與交通</div>
+                
+                <div class="attraction-card" data-detail-id="TainanHSR" data-title="台南高鐵站">
+                    台南高鐵站
+                </div>
+                <div class="attraction-card" data-detail-id="TaoyuanAirport" data-title="桃園國際機場">
+                    桃園國際機場
+                </div>
+                <div class="attraction-card" data-detail-id="CTS" data-title="新千歲國際機場">
+                    新千歲國際機場
+                </div>
+            </div>
             
-            <div class="attraction-card" data-detail-id="TainanHSR" data-title="台南高鐵站出發">
-                台南高鐵站出發 <span>06:16</span>
-            </div>
-            <div class="attraction-card" data-detail-id="TaoyuanAirport" data-title="桃園國際機場 (TPE)">
-                桃園國際機場 (TPE) <span>TR892 12:45 出發</span>
-            </div>
-            <div class="attraction-card" data-detail-id="CTS" data-title="新千歲國際機場 (CTS)">
-                新千歲國際機場 (CTS) <span>17:45 抵達</span>
-            </div>
-            <div class="attraction-card" data-detail-id="PortomHotel" data-title="北海道帕托姆國際飯店">
-                北海道帕托姆國際飯店 <span>Check-in (8/9-8/10)</span>
-            </div>
-            <div class="section-title">餐食</div>
-            <div class="attraction-card" data-detail-id="DinnerD1" data-title="晚餐">
-                機上晚餐
+            <div class="section-container">
+                <div class="section-title">餐食與住宿</div>
+                <div class="attraction-card" data-detail-id="DinnerD1" data-title="晚餐">
+                    機上餐點
+                </div>
+                <div class="attraction-card" data-detail-id="PortomHotel" data-title="北海道帕托姆國際飯店">
+                    帕托姆國際飯店
+                </div>
             </div>
         </div>
 
         <!-- Day 2: 08/10 (日) -->
         <div id="day2" class="day-schedule">
-            <h2>DAY 2: 08/10 (日)</h2>
-            <div class="section-title">札幌/小樽</div>
+             <h2>DAY 2: 08/10 (日)</h2>
+             <div class="section-container">
+                <div class="section-title">札幌/小樽</div>
 
-            <div class="attraction-card" data-detail-id="OrixRent" data-title="Orix 租車">
-                Orix 租車 (新千歲機場店) <span>預約 09:30</span>
-            </div>
-            <div class="attraction-card" data-detail-id="OtaruMarket" data-title="小樽三角市場/鱗友朝市">
-                小樽三角市場/鱗友朝市 <span>午餐 (海鮮丼)</span>
-            </div>
-            <div class="attraction-card" data-detail-id="OtaruOrgel" data-title="小樽音樂盒堂">
-                小樽音樂盒堂 <span>景點推薦</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Kitaichi" data-title="北一玻璃三號館">
-                北一玻璃三號館 <span>煤油燈大廳</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Tanukikoji" data-title="狸小路商店街">
-                狸小路商店街 <span>購物散步</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Jojoen" data-title="叙叙苑 札幌薄野店">
-                叙叙苑 札幌薄野店 <span>晚餐 18:30 (燒肉)</span>
-            </div>
-            <div class="attraction-card" data-detail-id="KaraksaHotel" data-title="唐草飯店札幌">
-                唐草飯店札幌 <span>Check-in (8/10-8/12)</span>
+                <div class="attraction-card" data-detail-id="OrixRent" data-title="Orix 租車">
+                    Orix 租車
+                </div>
+                <div class="attraction-card" data-detail-id="OtaruMarket" data-title="海鮮朝市">
+                    海鮮朝市
+                </div>
+                <div class="attraction-card" data-detail-id="OtaruOrgel" data-title="小樽音樂盒堂">
+                    音樂盒堂
+                </div>
+                <div class="attraction-card" data-detail-id="Kitaichi" data-title="北一玻璃三號館">
+                    北一玻璃三號館
+                </div>
+                <div class="attraction-card" data-detail-id="Tanukikoji" data-title="狸小路商店街">
+                    狸小路商店街
+                </div>
+                <div class="attraction-card" data-detail-id="Jojoen" data-title="叙叙苑 札幌薄野店">
+                    叙叙苑 燒肉
+                </div>
+                <div class="attraction-card" data-detail-id="KaraksaHotel" data-title="唐草飯店札幌">
+                    唐草飯店札幌
+                </div>
             </div>
         </div>
 
         <!-- Day 3: 08/11 (一) -->
         <div id="day3" class="day-schedule">
             <h2>DAY 3: 08/11 (一)</h2>
-            <div class="section-title">札幌購物與景點</div>
+            <div class="section-container">
+                <div class="section-title">札幌購物與景點</div>
 
-            <div class="attraction-card" data-detail-id="CostcoSap" data-title="Costco 札幌倉庫店">
-                Costco 札幌倉庫店 <span>10:00 → 20:00</span>
-            </div>
-            <div class="attraction-card" data-detail-id="MitsuiOutlet" data-title="北廣島三井OUTLET PARK">
-                北廣島三井OUTLET PARK <span>午餐/購物</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Tanukikoji2" data-title="狸小路商店街">
-                狸小路商店街 <span>晚餐/購物 (自理)</span>
-            </div>
-            <div class="attraction-card" data-detail-id="SapporoClock" data-title="札幌市時計台">
-                札幌市時計台 <span>備用景點</span>
-            </div>
-            <div class="attraction-card" data-detail-id="KaraksaHotel2" data-title="唐草飯店札幌">
-                唐草飯店札幌 <span>住宿</span>
+                <div class="attraction-card" data-detail-id="CostcoSap" data-title="Costco 札幌倉庫店">
+                    Costco 札幌
+                </div>
+                <div class="attraction-card" data-detail-id="MitsuiOutlet" data-title="北廣島三井OUTLET PARK">
+                    三井OUTLET PARK
+                </div>
+                <div class="attraction-card" data-detail-id="Tanukikoji2" data-title="狸小路商店街">
+                    狸小路商店街
+                </div>
+                <div class="attraction-card" data-detail-id="SapporoClock" data-title="札幌市時計台">
+                    札幌市時計台
+                </div>
+                <div class="attraction-card" data-detail-id="KaraksaHotel2" data-title="唐草飯店札幌">
+                    唐草飯店札幌
+                </div>
             </div>
         </div>
         
         <!-- Day 4: 08/12 (二) -->
         <div id="day4" class="day-schedule">
             <h2>DAY 4: 08/12 (二)</h2>
-            <div class="section-title">體育、室蘭與登別</div>
+            <div class="section-container">
+                <div class="section-title">體育、室蘭與溫泉</div>
 
-            <div class="attraction-card" data-detail-id="ESCONF" data-title="ES CON FIELD 球場導覽">
-                ES CON FIELD 球場導覽 <span>11:00 預約 (午餐自理)</span>
-            </div>
-            <div class="attraction-card" data-detail-id="ChikyuMisaki" data-title="地球岬展望台 (室蘭)">
-                地球岬展望台 <span>室蘭景點</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Jigokudani" data-title="登別地獄谷">
-                登別地獄谷 <span>登別景點</span>
-            </div>
-            <div class="attraction-card" data-detail-id="OnsenSt" data-title="登別溫泉街">
-                登別溫泉街 <span>晚餐 (自理)</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Daiichitaki" data-title="第一瀧本館">
-                第一瀧本館 <span>Check-in (8/12-8/13)</span>
+                <div class="attraction-card" data-detail-id="ESCONF" data-title="ES CON FIELD 球場">
+                    ES CON FIELD 球場
+                </div>
+                <div class="attraction-card" data-detail-id="ChikyuMisaki" data-title="地球岬展望台">
+                    地球岬展望台
+                </div>
+                <div class="attraction-card" data-detail-id="Jigokudani" data-title="登別地獄谷">
+                    登別地獄谷
+                </div>
+                <div class="attraction-card" data-detail-id="OnsenSt" data-title="登別溫泉街">
+                    登別溫泉街
+                </div>
+                <div class="attraction-card" data-detail-id="Daiichitaki" data-title="第一瀧本館">
+                    第一瀧本館
+                </div>
             </div>
         </div>
 
         <!-- Day 5: 08/13 (三) -->
         <div id="day5" class="day-schedule">
             <h2>DAY 5: 08/13 (三)</h2>
-            <div class="section-title">函館 - 大自然與夜景</div>
+            <div class="section-container">
+                <div class="section-title">函館 - 自然與夜景</div>
 
-            <div class="attraction-card" data-detail-id="YakumoRS" data-title="八雲道路休息站">
-                八雲道路休息站 <span>休息/午餐</span>
-            </div>
-            <div class="attraction-card" data-detail-id="OnumaPark" data-title="大沼國定公園">
-                大沼國定公園 <span>景點 (划獨木舟/單車)</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Tonpei" data-title="とん平 函館駅前店">
-                とん平 函館駅前店 <span>晚餐</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Hakodateyama" data-title="函館山夜景">
-                函館山夜景 <span>百萬夜景</span>
-            </div>
-            <div class="attraction-card" data-detail-id="GlobalView" data-title="函館環球景觀飯店">
-                函館環球景觀飯店 <span>Check-in (8/13-8/15)</span>
+                <div class="attraction-card" data-detail-id="YakumoRS" data-title="八雲道路休息站">
+                    八雲道路休息站
+                </div>
+                <div class="attraction-card" data-detail-id="OnumaPark" data-title="大沼國定公園">
+                    大沼國定公園
+                </div>
+                <div class="attraction-card" data-detail-id="Tonpei" data-title="とん平 函館駅前店">
+                    とん平 函館駅前店
+                </div>
+                <div class="attraction-card" data-detail-id="Hakodateyama" data-title="函館山夜景">
+                    函館山夜景
+                </div>
+                <div class="attraction-card" data-detail-id="GlobalView" data-title="函館環球景觀飯店">
+                    環球景觀飯店
+                </div>
             </div>
         </div>
 
         <!-- Day 6: 08/14 (四) -->
         <div id="day6" class="day-schedule">
             <h2>DAY 6: 08/14 (四)</h2>
-            <div class="section-title">函館市區巡禮</div>
-            
-            <div class="attraction-card" data-detail-id="GoryokakuT" data-title="五稜郭塔">
-                五稜郭塔 <span>柯南景點/全景展望</span>
-            </div>
-            <div class="attraction-card" data-detail-id="HakodateAsa" data-title="函館朝市">
-                函館朝市 <span>午餐 (海鮮)</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Kanemori" data-title="金森紅磚倉庫">
-                金森紅磚倉庫 <span>購物/美食</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Hachiman" data-title="八幡坂">
-                八幡坂 <span>景點 (最美坡道)</span>
-            </div>
-            <div class="attraction-card" data-detail-id="GlobalView2" data-title="函館環球景觀飯店">
-                函館環球景觀飯店 <span>住宿</span>
+            <div class="section-container">
+                <div class="section-title">函館市區巡禮</div>
+                
+                <div class="attraction-card" data-detail-id="GoryokakuT" data-title="五稜郭塔">
+                    五稜郭塔
+                </div>
+                <div class="attraction-card" data-detail-id="HakodateAsa" data-title="函館朝市">
+                    函館朝市
+                </div>
+                <div class="attraction-card" data-detail-id="Kanemori" data-title="金森紅磚倉庫">
+                    金森紅磚倉庫
+                </div>
+                <div class="attraction-card" data-detail-id="Hachiman" data-title="八幡坂">
+                    八幡坂
+                </div>
+                <div class="attraction-card" data-detail-id="GlobalView2" data-title="函館環球景觀飯店">
+                    環球景觀飯店
+                </div>
             </div>
         </div>
 
         <!-- Day 7: 08/15 (五) -->
         <div id="day7" class="day-schedule">
             <h2>DAY 7: 08/15 (五)</h2>
-            <div class="section-title">歸途</div>
+            <div class="section-container">
+                <div class="section-title">歸途</div>
 
-            <div class="attraction-card" data-detail-id="OrixReturn" data-title="Orix 函館機場店還車">
-                Orix 函館機場店還車 <span>預約 09:30</span>
-            </div>
-            <div class="attraction-card" data-detail-id="HakodateAir" data-title="函館國際機場 (HKD)">
-                函館國際機場 (HKD) <span>IT237 12:30 出發</span>
-            </div>
-            <div class="attraction-card" data-detail-id="TaoyuanFinal" data-title="桃園國際機場 (TPE) 抵達">
-                桃園國際機場 (TPE) 抵達 <span>15:45 抵達</span>
-            </div>
-            <div class="attraction-card" data-detail-id="Home" data-title="甜蜜的家">
-                甜蜜的家 <span>旅途愉快</span>
+                <div class="attraction-card" data-detail-id="OrixReturn" data-title="Orix 函館機場店還車">
+                    Orix 還車
+                </div>
+                <div class="attraction-card" data-detail-id="HakodateAir" data-title="函館國際機場">
+                    函館機場
+                </div>
+                <div class="attraction-card" data-detail-id="TaoyuanFinal" data-title="桃園國際機場 抵達">
+                    桃園機場 抵達
+                </div>
+                <div class="attraction-card" data-detail-id="Home" data-title="甜蜜的家">
+                    甜蜜的家
+                </div>
             </div>
         </div>
         
     </div>
 </div>
 
-<!-- 彈出視窗結構 (底部滑出面板) -->
+<!-- 底部滑出面板 (Bottom Sheet) 結構 -->
 <div id="detailModal" class="modal">
+    <!-- 關閉按鈕 -->
+    <span class="close-btn" onclick="closeModal()">&times;</span>
     <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
         <h3 id="modalTitle">景點標題</h3>
         <p id="modalDetail">景點詳細內容。</p>
     </div>
 </div>
 
 <script>
-    // 景點詳細資訊 (內容與前一版相同)
+    // 景點詳細資訊 (已精簡)
     const attractionDetails = {
-        'TainanHSR': '06:16 出發，前往桃園高鐵站。',
-        'TaoyuanAirport': '搭乘 Scoot TR892 12:45出發，前往新千歲機場 (CTS)。',
-        'CTS': '17:45 抵達新千歲國際機場國際線航廈。',
-        'PortomHotel': '住宿資訊：北海道帕托姆國際飯店 | Check-in: 15:00 | 備註: 含早餐。',
-        'DinnerD1': '晚餐：機上提供餐食。',
-        'OrixRent': 'Orix 租車：新千歲機場店 預約租車時間 09:30。',
-        'OtaruMarket': '午餐地點：小樽鱗友朝市或三角朝市。建議前往「滝波食堂」或「武田鮮魚店」。停車場消費 ¥2,000 免停車費。',
-        'OtaruOrgel': '小樽音樂盒堂：充滿童話氣息的音樂盒博物館，收藏超過三千種精緻音樂盒，可親手製作專屬音樂盒。',
-        'Kitaichi': '北一玻璃三號館：百年石造倉庫改建，以167盞煤油燈點亮大廳最具代表性。',
-        'Tanukikoji': '狸小路商店街：札幌著名的購物街，步行至叙叙苑 7 分鐘。',
-        'Jojoen': '晚餐：叙叙苑 札幌薄野店，預約用餐時間 18:30。',
-        'KaraksaHotel': '住宿：唐草飯店札幌 | Check-in: 15:00 | Check-out: 12:00 | 備註: 含早餐。',
-        'CostcoSap': 'Costco 札幌倉庫店：10:00 → 20:00 | 設有平面及立體停車場。',
-        'MitsuiOutlet': '午餐/購物：北廣島三井OUTLET PARK，午餐自理，主要有 MAPLE MALL, CLOVER MALL 兩區。',
-        'Tanukikoji2': '晚餐/購物：狸小路商店街，晚餐自理，可前往附近 PARCO, 唐吉訶德等。',
-        'SapporoClock': '札幌市時計台：北海道最古老的鐘樓 (1878年建)，09:00-17:00 (入內參觀)。',
+        'TainanHSR': '出發時間：06:16。前往桃園高鐵站。',
+        'TaoyuanAirport': '航班：Scoot TR892。登機時間：12:15，起飛時間：12:45。',
+        'CTS': '航班 TR892 預計抵達時間：17:45。',
+        'PortomHotel': '住宿期間：8/9-8/10。備註：含早餐。Check-in: 15:00。',
+        'DinnerD1': '餐食備註：晚餐於機上提供。',
+        'OrixRent': '租車預約時間：09:30。地點：新千歲機場店。',
+        'OtaruMarket': '午餐地點選擇：鱗友朝市或三角朝市。停車備註：消費 ¥2,000 免費停車。',
+        'OtaruOrgel': '活動：音樂盒博物館參觀，可欣賞音樂盒演奏或親手製作。',
+        'Kitaichi': '活動：百年石造倉庫改建的玻璃工藝館，有167盞煤油燈點亮。',
+        'Tanukikoji': '活動：札幌著名的購物街，步行 7 分鐘可達晚餐地點。',
+        'Jojoen': '晚餐預約時間：18:30。餐廳：叙叙苑 札幌薄野店。',
+        'KaraksaHotel': '住宿期間：8/10-8/12。備註：含早餐。Check-in: 15:00。',
+        'CostcoSap': '營業時間：10:00 → 20:00。備註：設有平面及立體停車場。',
+        'MitsuiOutlet': '活動：購物，午餐自理。主要區域：MAPLE MALL, CLOVER MALL。',
+        'Tanukikoji2': '晚餐/購物：狸小路商店街。晚餐自理。',
+        'SapporoClock': '參觀時間：09:00-17:00 (入內參觀)。備註：北海道最古老的鐘樓。',
         'KaraksaHotel2': '住宿：唐草飯店札幌。',
-        'ESCONF': 'ES CON FIELD 球場導覽：預約時間 11:00 (11:00 → 11:50) | 導覽從 Coca-Cola GATE 內報到。球場設有溫泉、美食區。',
-        'MuroranCafe': '中途休息：室蘭咖啡廳，建議選擇 THE LAMP ROOM CAFE 或 宮越屋珈琲 Mutekirou。',
-        'ChikyuMisaki': '地球岬展望台 (室蘭景點)：室蘭市繪鞆半島最南端，可遠眺太平洋的弧線。',
-        'Jigokudani': '登別地獄谷 (登別景點)：活火山爆發形成，終年湧出熱泉與硫磺氣體，是登別溫泉的天然泉源。',
-        'OnsenSt': '晚餐：登別溫泉街，晚餐自理。有「溫泉市場」、「Nobojin 燒肉火鍋」等餐廳可選。',
-        'Daiichitaki': '住宿：第一瀧本館 | Check-in: 14:00 | Check-out: 10:00 | 備註: 不含早餐。',
-        'YakumoRS': '八雲道路休息站：長途駕駛中途休息點，可品嚐元山牧場的乳製品與披薩。',
-        'OnumaPark': '大沼國定公園：全道面積最小的國定公園，以活火山駒岳為背景，湖泊眾多，可進行水上活動。',
-        'Nanairo': '備選休息站：道路休息站七色・七飯 (09:00-18:00)，販售當地新鮮蔬果與蘋果製品。',
+        'ESCONF': '活動：球場導覽，預約時間 11:00。報到：Coca-Cola GATE 內。',
+        'ChikyuMisaki': '活動：室蘭市繪鞆半島最南端，可遠眺太平洋。',
+        'Jigokudani': '活動：登別溫泉的源頭，活火山爆發所形成的爆裂火口。',
+        'OnsenSt': '晚餐：登別溫泉街，晚餐自理。',
+        'Daiichitaki': '住宿期間：8/12-8/13。備註：不含早餐。Check-in: 14:00。',
+        'YakumoRS': '活動：休息/午餐。道路休息站，可品嚐當地乳製品。',
+        'OnumaPark': '活動：國定公園散步/划船/騎單車。',
         'Tonpei': '晚餐：とん平 函館駅前店。',
-        'Hakodateyama': '函館山夜景：北海道三大夜景之一 (334公尺)，可搭纜車 (¥1,800/per) 或巴士上山，欣賞扇形夜景。',
-        'GlobalView': '住宿：函館環球景觀飯店 | Check-in: 15:00 | Check-out: 11:00 | 備註: 含早餐。',
-        'GoryokakuT': '五稜郭塔：高 107 公尺，俯瞰星形要塞全景。門票 ¥1,200/per。 (09:00-18:00)',
-        'GoryokakuP': '五稜郭公園：日本首座西式星形要塞遺址 (1864年建)，箱館戰爭聞名，春季賞櫻名所。',
-        'HakodateAsa': '午餐：函館朝市 (06:00-14:00)，建議前往「蓋飯橫丁」享用海鮮丼飯，或體驗「釣花枝」。',
-        'Kanemori': '購物/美食：金森紅磚倉庫 (09:30-19:00)，可購買伴手禮、品嚐甜點或海鮮料理。',
-        'Hachiman': '八幡坂：函館著名的坡道之一，從高處望去可見街道直延伸至港口。',
+        'Hakodateyama': '活動：欣賞百萬夜景。交通：可搭纜車 (¥1,800/per)。',
+        'GlobalView': '住宿期間：8/13-8/15。備註：含早餐。Check-in: 15:00。',
+        'GoryokakuT': '活動：登塔展望星形要塞。門票：¥1,200/per。',
+        'GoryokakuP': '活動：日本首座西式星形要塞遺址。',
+        'HakodateAsa': '活動：海鮮午餐/體驗釣花枝。營業時間：06:00-14:00。',
+        'Kanemori': '活動：購物/美食。明治時代的紅磚倉庫。',
+        'Hachiman': '活動：函館最美坡道，可眺望港口。',
         'GlobalView2': '住宿：函館環球景觀飯店。',
-        'OrixReturn': 'Orix 函館機場店還車：預約還車時間 09:30。還車地點：函館空港カウンター。',
-        'HakodateAir': '函館國際機場 (HKD)：搭乘 Tigerair IT237 12:30出發。',
-        'TaoyuanFinal': '桃園國際機場 (TPE) 抵達：15:45 抵達，轉乘高鐵回台南。',
-        'Home': '甜蜜的家：旅途結束。'
+        'OrixReturn': '還車預約時間：09:30。地點：函館機場店カウンター。',
+        'HakodateAir': '航班：Tigerair IT237。起飛時間：12:30。',
+        'TaoyuanFinal': '航班 IT237 預計抵達時間：15:45。',
+        'Home': '備註：旅途圓滿結束。'
     };
 
-    // --- JavaScript 互動邏輯修正 ---
+    // --- JavaScript 互動邏輯 ---
 
     // 頁面載入時執行
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. 修復日期 Tab 點擊事件
+        // 1. 日期 Tab 點擊事件
         const dateTabsContainer = document.getElementById('dateTabs');
         const firstDayTab = dateTabsContainer.querySelector('.date-tab');
         
-        // 確保點擊 Tab 時能切換日程
         dateTabsContainer.addEventListener('click', function(event) {
-            const target = event.target;
-            if (target.classList.contains('date-tab')) {
+            const target = event.target.closest('.date-tab');
+            if (target) {
                 const dayId = target.getAttribute('data-day');
                 showSchedule(dayId);
             }
         });
-
-        // 預設顯示 Day 1
-        if (firstDayTab) {
-            showSchedule(firstDayTab.getAttribute('data-day'));
-        }
 
         // 2. 景點卡片點擊事件
         document.querySelectorAll('.attraction-card').forEach(card => {
@@ -499,6 +591,11 @@
                 openModal(detailId, title);
             });
         });
+        
+        // 預設顯示 Day 1
+        if (firstDayTab) {
+            showSchedule(firstDayTab.getAttribute('data-day'));
+        }
     });
 
     /**
@@ -544,7 +641,6 @@
     // 點擊 Modal 以外 (半透明背景) 的地方關閉視窗
     window.onclick = function(event) {
         const modal = document.getElementById('detailModal');
-        // 確保點擊的目標是 modal 本身，而不是 modal-content 內的元素
         if (event.target === modal) {
             closeModal();
         }
@@ -552,7 +648,6 @@
     
     // --- 天氣獲取教學函數 ---
     function showWeatherInstruction() {
-        // 彈出視窗顯示教學內容
         const instructionTitle = '如何獲取北海道即時天氣 (開發教學)';
         const instructionContent = `
             要獲取即時天氣，您需要使用一個**天氣 API** (Application Programming Interface)。<br><br>
@@ -564,10 +659,10 @@
             **步驟二：撰寫 JavaScript 獲取數據**
             您需要使用 JavaScript 的 fetch 函數來呼叫 API。<br><br>
             
-            **範例程式碼 (以 OpenWeatherMap 為例，城市 ID 為札幌):**<br>
+            **範例程式碼 (以 OpenWeatherMap 為例):**<br>
             <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 0.8em; color: #555;">
-const API_KEY = 'YOUR_API_KEY';
-const cityId = '2128295'; // Sapporo ID
+const API_KEY = 'YOUR_API_KEY'; // 請替換成您自己的 API Key
+const cityId = '2128295'; // 札幌的城市 ID
 const url = \`https://api.openweathermap.org/data/2.5/weather?id=\${cityId}&appid=\${API_KEY}&units=metric&lang=zh_tw\`;
 
 fetch(url)
@@ -583,7 +678,6 @@ fetch(url)
             將這段程式碼放在 \`<script>\` 標籤內，並在頁面載入時執行，即可將即時天氣顯示在網頁上。
         `;
         
-        // 重新使用 closeModal 和 openModal，但這次直接操作模態內容
         document.getElementById('modalTitle').innerHTML = instructionTitle;
         document.getElementById('modalDetail').innerHTML = instructionContent;
         
